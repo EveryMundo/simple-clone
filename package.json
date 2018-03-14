@@ -1,6 +1,6 @@
 {
   "name": "simple-clone",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Very simplistic cloning tool for nodejs.",
   "main": "index.js",
   "scripts": {
