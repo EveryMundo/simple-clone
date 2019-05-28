@@ -4,8 +4,17 @@
   "description": "Very simplistic cloning tool for nodejs.",
   "main": "index.js",
   "scripts": {
-    "cover": "istanbul cover -x '*.test.js' _mocha",
-    "test": "mocha"
+    "cover": "LOG_LEVEL=trace nyc -x test --reporter=lcov --reporter=text mocha test --recursive",
+    "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
+    "check-lint": "standard --env=mocha *.js lib/*.js spec/*.js spec/lib/*.js",
+    "fix-lint": "standard --env=mocha --fix *.js lib/*.js test/*.js",
+    "test": "NODE_ENV=test LOG_LEVEL=test mocha --recursive $@"
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm run check-lint && npm test",
+      "pre-push": "npm run cover && npm run check-coverage"
+    }
   },
   "repository": {
     "type": "git",
@@ -19,8 +28,10 @@
   },
   "homepage": "https://github.com/EveryMundo/simple-clone#readme",
   "devDependencies": {
-    "chai": "^4.1.2",
-    "istanbul": "^1.1.0-alpha.1",
-    "mocha": "^4.1.0"
+    "chai": "^4.2.0",
+    "ghooks": "^2.0.4",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "standard": "^12.0.1"
   }
 }
