@@ -1,24 +1,52 @@
 const clone = o => JSON.parse(JSON.stringify(o))
 
-const realClone = (obj, history = []) => {
-  if (history.includes(obj)) return '[Circular]'
+function deepClone (input) {
+  if (!(input instanceof Object)) return input
 
-  if (Array.isArray(obj)) {
-    history.push(obj)
-    return obj.map(_ => realClone(_, history))
+  if (Array.isArray(input)) {
+    let iLen = input.length
+    const arr = new Array(iLen)
+
+    for (;iLen--;) {
+      arr[iLen] = deepClone(input[iLen])
+    }
+
+    return arr
   }
 
-  if (typeof obj === 'object') {
-    history.push(obj)
-    const ret = {}
-
-    Object.keys(obj).forEach((key) => {
-      ret[key] = realClone(obj[key], history)
-    })
-
-    return ret
+  const clObj = {}
+  for (const i in input) {
+    clObj[i] = deepClone(input[i])
   }
-  return obj
+
+  return clObj
 }
 
-module.exports = { clone, realClone }
+const safeClone = (input, history = []) => {
+  if (!(input instanceof Object)) return input
+
+  if (history.indexOf(input) > -1) return '[Circular]'
+
+  history.push(input)
+
+  if (Array.isArray(input)) {
+    let iLen = input.length
+    const arr = new Array(iLen)
+
+    for (;iLen--;) {
+      arr[iLen] = safeClone(input[iLen], history)
+    }
+
+    return arr
+  }
+
+  const ret = {}
+
+  for (const i in input) {
+    ret[i] = (input[i] instanceof Object) ? safeClone(input[i], history) : input[i]
+  }
+
+  return ret
+}
+
+module.exports = { clone, realClone: safeClone, safeClone, deepClone }

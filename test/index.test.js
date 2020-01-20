@@ -1,11 +1,21 @@
 
 const { expect } = require('chai')
-const { clone, realClone } = require('../')
+const { clone, realClone, safeClone, deepClone } = require('../')
 
 describe('clone', () => {
   it('should return a different obj with the same structure', () => {
     const original = { a: 1, b: 'two', c: [true], d: { e: 'f' } }
     const result = clone(original)
+
+    expect(result).to.not.equal(original)
+    expect(result).to.deep.equal(original)
+  })
+})
+
+describe('deepClone', () => {
+  it('should return a different obj with the same structure', () => {
+    const original = { a: 1, b: 'two', c: [true], d: { e: 'f' } }
+    const result = deepClone(original)
 
     expect(result).to.not.equal(original)
     expect(result).to.deep.equal(original)
@@ -40,6 +50,40 @@ describe('realClone', () => {
     someObject.original = original
 
     const result = realClone(original)
+
+    expect(result).to.not.equal(original)
+    expect(result).to.deep.equal(expected)
+  })
+})
+
+describe('safeClone', () => {
+  it('should return a different obj with the same structure', () => {
+    const original = { a: 1, b: 'two', c: [true], d: { e: 'f', g: { h: 'i' } } }
+    const result = safeClone(original)
+
+    expect(result).to.not.equal(original)
+    expect(result).to.deep.equal(original)
+  })
+
+  it('should return a different Array with the copy of the values', () => {
+    const original = [{ a: 1 }, { b: 'two' }, [true], { d: { e: 'f' } }]
+    const result = safeClone(original)
+
+    expect(result).to.not.equal(original)
+    expect(result).to.deep.equal(original)
+  })
+
+  it('should return a clone of the input signalizing the Circular ref', () => {
+    const someObject = { a: 1, original: '[Circular]' }
+    const original = [someObject, { b: 'two' }, [true], { d: { e: 'f' } }]
+
+    // cloning original before adding Circular ref
+    const expected = clone(original)
+
+    // adds circular ref
+    someObject.original = original
+
+    const result = safeClone(original)
 
     expect(result).to.not.equal(original)
     expect(result).to.deep.equal(expected)
